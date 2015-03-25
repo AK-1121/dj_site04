@@ -2,6 +2,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import unittest
+import time
 
 class NewVisitorTest(unittest.TestCase):
     def setUp(self):
@@ -36,20 +37,32 @@ class NewVisitorTest(unittest.TestCase):
         # "1: Buy bananas" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
 
+        #time.sleep(5)
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
+        '''
         self.assertTrue(
             any(row.text == '1: Buy bananas' for row in rows),
-            "New to-do item did not appear in table."
+            "New to-do item did not appear in table. -- " +
+             "its text was: %s" % (table.text, )
         )
+        '''
+        self.assertIn('1: Buy bananas', [row.text for row in rows])
 
         # There is still a text box inviting her to add another item.
         # She enters "Make pie with bananas"
-        self.fail('Finish the test!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Make pie with bananas')
+        inputbox.send_keys(Keys.ENTER)
 
         # The page updates again, and now shows both items in her list
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn('1: Buy bananas', [row.text for row in rows])
+        self.assertIn('2: Make pie with bananas', [row.text for row in rows])
 
         # The site has generated a unique URL for her
+        self.fail('Finish the test!')
 
         # She visits that URL - her to-do list is still there.
 
