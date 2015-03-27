@@ -8,8 +8,16 @@
             <input name='item_text' id="id_new_item" placeholder='Enter a to-do item'/>
             {% csrf_token %}
         </form>
-        <table id='id_list_table'>
-            <tr><td>1: {{ new_item_text }}</td></tr>
+        <table id='id_list_table' border = '2'>
+            {% for item in items %}
+                <tr><td>
+                    {% if forloop.counter == 13 %}
+                        {{ 'XX'}}: {{ item.text }}
+                    {% else %}
+                        {{ forloop.counter }}: {{ item.text }}
+                    {% endif %}
+                </td></tr>
+            {% endfor %}
         </table>
     </body>
 </html>

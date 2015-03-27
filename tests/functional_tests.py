@@ -4,6 +4,15 @@ from selenium.webdriver.common.keys import Keys
 import unittest
 import time
 
+#from ..lists.models import Item
+#from . import lists
+#from lists import models
+#import lists
+
+#import lists
+#from ..lists import models
+
+
 class NewVisitorTest(unittest.TestCase):
     def setUp(self):
         #self.browser = webdriver.Firefox()
@@ -37,18 +46,19 @@ class NewVisitorTest(unittest.TestCase):
                 'Enter a to-do item'
         )
 
+        # Find number of <tr><td> to determine the number of elemets that
+        # are already in to-do list:
+        table = self.browser.find_element_by_id('id_list_table')
+        recs_in_list = len(table.find_elements_by_tag_name('tr'))
+        print('number of rows:', recs_in_list)
+
         # She types "Buy bananas" into a text box
         inputbox.send_keys('Buy bananas')
 
         # When she hits enter, the page updates, and now the page lists:
         # "1: Buy bananas" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
-        self.check_for_row_in_list_table('1: Buy bananas')
-
-        #time.sleep(5)
-        #table = self.browser.find_element_by_id('id_list_table')
-        #rows = table.find_elements_by_tag_name('tr')
-        #self.assertIn('1: Buy bananas', [row.text for row in rows])
+        self.check_for_row_in_list_table(str(recs_in_list+1) + ': Buy bananas')
 
         # There is still a text box inviting her to add another item.
         # She enters "Make pie with bananas"
@@ -57,8 +67,10 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
 
         # The page updates again, and now shows both items in her list
-        self.check_for_row_in_list_table('1: Buy bananas')
-        self.check_for_row_in_list_table('2: Make pie with bananas')
+        self.check_for_row_in_list_table(str(recs_in_list+1) + ': Buy bananas')
+        self.check_for_row_in_list_table(
+            str(recs_in_list+2) + ': Make pie with bananas'
+        )
         #table = self.browser.find_element_by_id('id_list_table')
         #rows = table.find_elements_by_tag_name('tr')
         #self.assertIn('1: Buy bananas', [row.text for row in rows])
