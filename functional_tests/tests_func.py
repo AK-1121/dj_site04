@@ -43,19 +43,25 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Find number of <tr><td> to determine the number of elemets that
         # are already in to-do list:
+        '''
         table = self.browser.find_element_by_id('id_list_table')
         recs_in_list = len(table.find_elements_by_tag_name('tr'))
         print('number of rows:', recs_in_list)
+        '''
+        recs_in_list = 0 # temporary decision
 
         # She types "Buy bananas" into a text box
         inputbox.send_keys('Buy bananas')
 
         # When she hits enter, the page updates, and now the page lists:
         # "1: Buy bananas" as an item in a to-do list
+        print("AAA")
         inputbox.send_keys(Keys.ENTER)
         edith_list_url = self.browser.current_url
         self.assertRegex(edith_list_url, '/lists/.+')
+        print("BBB")
         self.check_for_row_in_list_table(str(recs_in_list+1) + ': Buy bananas')
+        print("CCC")
 
         # There is still a text box inviting her to add another item.
         # She enters "Make pie with bananas"
@@ -77,10 +83,10 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser = webdriver.Chrome()
 
         # Frank visits home page. There is now data of Edith`s list
-        self.browser.get(self.live.server_url)
+        self.browser.get(self.live_server_url)
         page_context = self.browser.find_element_by_tag_name('body').text
-        self.assertNotIn('Buy bananas')
-        self.assertNotIn('Make pie with bananas')
+        self.assertNotIn('Buy bananas', page_context)
+        self.assertNotIn('Make pie with bananas', page_context)
 
         # Frank starts his own new list
         inputbox = self.browser.find_element_by_id('id_new_item')
