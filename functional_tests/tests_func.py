@@ -53,6 +53,8 @@ class NewVisitorTest(LiveServerTestCase):
         # When she hits enter, the page updates, and now the page lists:
         # "1: Buy bananas" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
+        edith_list_url = self.browser.current_url
+        self.assertRegex(edith_list_url, '/lists/.+')
         self.check_for_row_in_list_table(str(recs_in_list+1) + ': Buy bananas')
 
         # There is still a text box inviting her to add another item.
@@ -66,22 +68,39 @@ class NewVisitorTest(LiveServerTestCase):
         self.check_for_row_in_list_table(
             str(recs_in_list+2) + ': Make pie with bananas'
         )
-        #table = self.browser.find_element_by_id('id_list_table')
-        #rows = table.find_elements_by_tag_name('tr')
-        #self.assertIn('1: Buy bananas', [row.text for row in rows])
-        #self.assertIn('2: Make pie with bananas', [row.text for row in rows])
 
-        # The site has generated a unique URL for her
+        # Now a new user, Frank, comes along to the site.
 
-        # She visits that URL - her to-do list is still there.
-        self.fail('Finish the test!')
+        ## We use a new browser session to make shure that no information
+        ## of Edith`s is coming through from cookies etc
+        self.browser.quit()
+        self.browser = webdriver.Chrome()
 
-    '''
-    def test_my_test(self):
-        #self.browser.refresh()
-        time.sleep(2)
-        self.assertIn('To-do', self.browser.title)
-    '''
+        # Frank visits home page. There is now data of Edith`s list
+        self.browser.get(self.live.server_url)
+        page_context = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy bananas')
+        self.assertNotIn('Make pie with bananas')
+
+        # Frank starts his own new list
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy milk')
+        inputbox.send_keys(Keys.ENTER)
+
+        # Frank gets his own unique URL
+        frank_list_url = self.browser.current_url
+        self.assertRegex(frank_list_url, '/lists/.+')
+        self.assertNotEqual(frank_list_url, edith_list_url)
+
+        # Again check that there is no trace of Edith's data
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy bananas', page_text)
+        self.assertIt('Buy milk', page_text)
+    
+        # Satisfied, they both go back to sleep
+        #self.fail('Finish the test!')
+
+
 
 # We started to use Django for running FT, so we commented out this part:
 #if __name__ == '__main__':
